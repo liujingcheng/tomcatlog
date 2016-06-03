@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace TomcatLog
 {
@@ -12,7 +9,7 @@ namespace TomcatLog
         public DateTime RequestTime { get; set; }
         public string RequestUrl { get; set; }
         public string ResponseStatus { get; set; }
-        public int ResponseDataSize { get; set; }
+        public long ResponseDataSize { get; set; }
         public double Duration { get; set; }
     }
 }
