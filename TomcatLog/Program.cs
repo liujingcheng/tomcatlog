@@ -15,48 +15,29 @@ namespace TomcatLog
             var rFile = new FileStream(filename, FileMode.Open);
             var sr = new StreamReader(rFile, Encoding.GetEncoding("gb2312"));//读取中文简体编码GB2312
 
-            string str = sr.ReadToEnd();
-            sr.Close();
-            int j = str.IndexOf('\n');
-            while (j != -1)
-            {
-                str = str.Remove(j, 1);
-                j = str.IndexOf('\n');
-
-            }
-
-            string[] split = str.Split(new char[] { '\r' });
-
-            int length = split.Length;
-            for (int i = 1; i < length - 1; i++)//如果split数组中有一行是空,将它的上下两行合并,数组长度减2，若头尾两行为空,干脆舍去不要(不再合并)
-            {
-                if (split[i] == "")
-                {
-                    split[i - 1] = split[i - 1] + split[i + 1];
-                    for (int q = i; q < length - 2; q++)
-                        split[q] = split[q + 2];
-                    length = length - 2;
-                }
-            }
-
             SqlHelper helper = new SqlHelper();
 
             int a, b, existCount = 0, successCount = 0, failedCount = 0;
-            for (int i = 0; i < length - 1; i++)
+            while (!sr.EndOfStream)
             {
+                string lineStr = sr.ReadLine();
+                if (string.IsNullOrWhiteSpace(lineStr))
+                {
+                    continue;
+                }
+
                 try
                 {
-                    var lineStr = split[i];
                     var ip = lineStr.Substring(0, lineStr.IndexOf("- -")).Trim();
-                    a = split[i].IndexOf('[');
-                    b = split[i].IndexOf(']');
+                    a = lineStr.IndexOf('[');
+                    b = lineStr.IndexOf(']');
                     var dateStr = lineStr.Substring(a + 1, b - a - 1).Trim();
                     dateStr = dateStr.Split(new char[] { ' ' })[0];
                     dateStr = dateStr.Insert(dateStr.IndexOf(':'), " ");
                     dateStr = dateStr.Remove(dateStr.IndexOf(':'), 1);
 
-                    a = split[i].IndexOf('"');
-                    b = split[i].LastIndexOf('"');
+                    a = lineStr.IndexOf('"');
+                    b = lineStr.LastIndexOf('"');
                     var url = lineStr.Substring(a + 1, b - a - 1).Trim();
 
                     var lastStr = lineStr.Substring(b + 1, lineStr.Length - b - 1).Trim();
@@ -82,7 +63,7 @@ namespace TomcatLog
                     if (helper.IsExist(model))
                     {
                         existCount++;
-                        if (existCount % 10 == 0)
+                        if (existCount % 100 == 0)
                         {
                             Console.WriteLine("已存在个数：" + existCount);
                         }
@@ -91,7 +72,7 @@ namespace TomcatLog
                     if (helper.Create(model))
                     {
                         successCount++;
-                        if (successCount%10 == 0)
+                        if (successCount % 100 == 0)
                         {
                             Console.WriteLine("解析成功个数：" + successCount);
                         }
@@ -99,7 +80,7 @@ namespace TomcatLog
                     else
                     {
                         failedCount++;
-                        if (failedCount % 10 == 0)
+                        if (failedCount % 100 == 0)
                         {
                             Console.WriteLine("解析失败个数：" + failedCount);
                         }
@@ -110,10 +91,10 @@ namespace TomcatLog
                     failedCount++;
                     Console.WriteLine(ex.Message);
                 }
-
             }
-            Console.WriteLine();
+            sr.Close();
 
+            Console.WriteLine();
             Console.WriteLine("解析成功个数：" + successCount);
             Console.WriteLine("解析失败个数：" + failedCount);
             Console.WriteLine("已存在个数：" + existCount);
