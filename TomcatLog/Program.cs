@@ -17,7 +17,7 @@ namespace TomcatLog
 
             SqlHelper helper = new SqlHelper();
 
-            int a, b, existCount = 0, successCount = 0, failedCount = 0;
+            int a, b, existCount = 0, successCount = 0, failedCount = 0, updateConcurrencyCount=0,updateConcurrencyFailedCount = 0;
             while (!sr.EndOfStream)
             {
                 string lineStr = sr.ReadLine();
@@ -55,17 +55,26 @@ namespace TomcatLog
                         TomcatAccessId = Guid.NewGuid().ToString().Replace("-", ""),
                         Ip = ip,
                         RequestTime = date,
+                        Concurrency = 1,
                         RequestUrl = url,
                         ResponseStatus = status,
                         ResponseDataSize = size,
                         Duration = duration
                     };
-                    if (helper.IsExist(model))
+                    if (helper.IsConcurrentSameRecord(model))
                     {
-                        existCount++;
-                        if (existCount % 100 == 0)
+                        updateConcurrencyCount++;
+                        if (updateConcurrencyCount % 100 == 0)
                         {
-                            Console.WriteLine("已存在个数：" + existCount);
+                            Console.WriteLine("更新并发数个数：" + updateConcurrencyCount);
+                        }
+                        if (!helper.UpdateConcurrentModel(model))
+                        {
+                            updateConcurrencyFailedCount++;
+                            if (updateConcurrencyFailedCount % 100 == 0)
+                            {
+                                Console.WriteLine("更新并发数失败个数：" + updateConcurrencyFailedCount);
+                            }
                         }
                         continue;
                     }
@@ -97,6 +106,8 @@ namespace TomcatLog
             Console.WriteLine();
             Console.WriteLine("解析成功个数：" + successCount);
             Console.WriteLine("解析失败个数：" + failedCount);
+            Console.WriteLine("更新并发数个数：" + updateConcurrencyCount);
+            Console.WriteLine("更新并发数失败个数：" + updateConcurrencyFailedCount);
             Console.WriteLine("已存在个数：" + existCount);
             Console.ReadLine();
         }
