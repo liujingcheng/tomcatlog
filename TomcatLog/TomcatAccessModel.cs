@@ -12,5 +12,7 @@ namespace TomcatLog
         public string ResponseStatus { get; set; }
         public long ResponseDataSize { get; set; }
         public double Duration { get; set; }
+        public string FileName { get; set; }
+        public int Line { get; set; }
     }
 }

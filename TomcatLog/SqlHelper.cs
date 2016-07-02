@@ -21,8 +21,8 @@ namespace TomcatLog
         public bool Create(TomcatAccessModel model)
         {
             bool result = false;
-            string sql = @"insert into TomcatAccess (TomcatAccessId,Ip,RequestTime,Concurrency,RequestUrl,ResponseStatus,ResponseDataSize,Duration) 
-values(@TomcatAccessId,@Ip,@RequestTime,@Concurrency,@RequestUrl,@ResponseStatus,@ResponseDataSize,@Duration)";
+            string sql = @"insert into TomcatAccess (TomcatAccessId,Ip,RequestTime,Concurrency,RequestUrl,ResponseStatus,ResponseDataSize,Duration,FileName,Line) 
+values(@TomcatAccessId,@Ip,@RequestTime,@Concurrency,@RequestUrl,@ResponseStatus,@ResponseDataSize,@Duration,@FileName,@Line)";
             var paras = new DynamicParameters();
             paras.Add("TomcatAccessId", model.TomcatAccessId);
             paras.Add("Ip", model.Ip);
@@ -32,29 +32,8 @@ values(@TomcatAccessId,@Ip,@RequestTime,@Concurrency,@RequestUrl,@ResponseStatus
             paras.Add("ResponseStatus", model.ResponseStatus);
             paras.Add("ResponseDataSize", model.ResponseDataSize);
             paras.Add("Duration", model.Duration);
-            using (var context = DataBaseConnection.GetSqlServerConnection())
-            {
-                var affectrow = context.Execute(sql, paras);
-                result = affectrow == 1;
-                context.Dispose();
-            }
-
-            return result;
-        }
-        public bool Update(TomcatAccessModel model)
-        {
-            bool result = false;
-            string sql = @"update TomcatAccess set Ip=@Ip,RequestTime=@RequestTime,Concurrency=@Concurrency,
-RequestUrl=@RequestUrl,ResponseStatus=@ResponseStatus,ResponseDataSize=@ResponseDataSize,Duration=@Duration where TomcatAccessId=@TomcatAccessId ";
-            var paras = new DynamicParameters();
-            paras.Add("TomcatAccessId", model.TomcatAccessId);
-            paras.Add("Ip", model.Ip);
-            paras.Add("RequestTime", model.RequestTime);
-            paras.Add("Concurrency", model.Concurrency);
-            paras.Add("RequestUrl", model.RequestUrl);
-            paras.Add("ResponseStatus", model.ResponseStatus);
-            paras.Add("ResponseDataSize", model.ResponseDataSize);
-            paras.Add("Duration", model.Duration);
+            paras.Add("FileName", model.FileName);
+            paras.Add("Line", model.Line);
             using (var context = DataBaseConnection.GetSqlServerConnection())
             {
                 var affectrow = context.Execute(sql, paras);
@@ -73,7 +52,7 @@ RequestUrl=@RequestUrl,ResponseStatus=@ResponseStatus,ResponseDataSize=@Response
         public bool IsConcurrentSameRecord(TomcatAccessModel model)
         {
             var sql = @"select count(TomcatAccessId) from TomcatAccess where 
-Ip=@Ip and RequestTime=@RequestTime and RequestUrl=@RequestUrl and ResponseStatus=@ResponseStatus and ResponseDataSize=@ResponseDataSize and Duration=@Duration";
+Ip=@Ip and RequestTime=@RequestTime and RequestUrl=@RequestUrl and ResponseStatus=@ResponseStatus and ResponseDataSize=@ResponseDataSize and Duration=@Duration and FileName=@FileName";
             var paras = new DynamicParameters();
             paras.Add("Ip", model.Ip);
             paras.Add("RequestTime", model.RequestTime);
@@ -81,6 +60,7 @@ Ip=@Ip and RequestTime=@RequestTime and RequestUrl=@RequestUrl and ResponseStatu
             paras.Add("ResponseStatus", model.ResponseStatus);
             paras.Add("ResponseDataSize", model.ResponseDataSize);
             paras.Add("Duration", model.Duration);
+            paras.Add("FileName", model.FileName);
             using (var context = DataBaseConnection.GetSqlServerConnection())
             {
                 var count = context.Query<int>(sql, paras).First();
@@ -91,7 +71,7 @@ Ip=@Ip and RequestTime=@RequestTime and RequestUrl=@RequestUrl and ResponseStatu
         private TomcatAccessModel GetConcurrentModelIdAndConcurrency(TomcatAccessModel model)
         {
             var sql = @"select TomcatAccessId,Concurrency from TomcatAccess where 
-Ip=@Ip and RequestTime=@RequestTime and RequestUrl=@RequestUrl and ResponseStatus=@ResponseStatus and ResponseDataSize=@ResponseDataSize and Duration=@Duration";
+Ip=@Ip and RequestTime=@RequestTime and RequestUrl=@RequestUrl and ResponseStatus=@ResponseStatus and ResponseDataSize=@ResponseDataSize and Duration=@Duration and FileName=@FileName";
             var paras = new DynamicParameters();
             paras.Add("Ip", model.Ip);
             paras.Add("RequestTime", model.RequestTime);
@@ -99,6 +79,7 @@ Ip=@Ip and RequestTime=@RequestTime and RequestUrl=@RequestUrl and ResponseStatu
             paras.Add("ResponseStatus", model.ResponseStatus);
             paras.Add("ResponseDataSize", model.ResponseDataSize);
             paras.Add("Duration", model.Duration);
+            paras.Add("FileName", model.FileName);
             using (var context = DataBaseConnection.GetSqlServerConnection())
             {
                 var data = context.Query<TomcatAccessModel>(sql, paras).First();
@@ -120,23 +101,22 @@ Ip=@Ip and RequestTime=@RequestTime and RequestUrl=@RequestUrl and ResponseStatu
             }
         }
 
-        public bool IsExist(TomcatAccessModel model)
+        /// <summary>
+        /// 文件是否已被解析过了
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public bool IsFileHasAnalysised(string fileName)
         {
-            var sql = @"select count(TomcatAccessId) from TomcatAccess where 
-Ip=@Ip and RequestTime=@RequestTime and Concurrency=@Concurrency and RequestUrl=@RequestUrl and ResponseStatus=@ResponseStatus and ResponseDataSize=@ResponseDataSize and Duration=@Duration";
+            var sql = @"select count(TomcatAccessId) from TomcatAccess where FileName=@FileName";
             var paras = new DynamicParameters();
-            paras.Add("Ip", model.Ip);
-            paras.Add("RequestTime", model.RequestTime);
-            paras.Add("Concurrency", model.Concurrency);
-            paras.Add("RequestUrl", model.RequestUrl);
-            paras.Add("ResponseStatus", model.ResponseStatus);
-            paras.Add("ResponseDataSize", model.ResponseDataSize);
-            paras.Add("Duration", model.Duration);
+            paras.Add("FileName", fileName);
             using (var context = DataBaseConnection.GetSqlServerConnection())
             {
                 var count = context.Query<int>(sql, paras).First();
                 return count > 0;
             }
         }
+
     }
 }
