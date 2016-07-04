@@ -94,7 +94,7 @@ namespace TomcatLog
                         TomcatAccessId = Guid.NewGuid().ToString().Replace("-", ""),
                         Ip = ip,
                         RequestTime = date,
-                        Concurrency = 1,
+                        //Concurrency = 1,
                         RequestUrl = url,
                         ResponseStatus = status,
                         ResponseDataSize = size,
@@ -102,23 +102,23 @@ namespace TomcatLog
                         FileName = fileName,
                         Line = line
                     };
-                    if (sqlHelper.IsConcurrentSameRecord(model))
-                    {
-                        updateConcurrencyCount++;
-                        if (updateConcurrencyCount % 100 == 0)
-                        {
-                            Console.WriteLine("更新并发数个数：" + updateConcurrencyCount);
-                        }
-                        if (!sqlHelper.UpdateConcurrentModel(model))
-                        {
-                            updateConcurrencyFailedCount++;
-                            if (updateConcurrencyFailedCount % 100 == 0)
-                            {
-                                Console.WriteLine("更新并发数失败个数：" + updateConcurrencyFailedCount);
-                            }
-                        }
-                        continue;
-                    }
+                    //if (sqlHelper.IsConcurrentSameRecord(model))
+                    //{
+                    //    updateConcurrencyCount++;
+                    //    if (updateConcurrencyCount % 100 == 0)
+                    //    {
+                    //        Console.WriteLine("更新并发数个数：" + updateConcurrencyCount);
+                    //    }
+                    //    if (!sqlHelper.UpdateConcurrentModel(model))
+                    //    {
+                    //        updateConcurrencyFailedCount++;
+                    //        if (updateConcurrencyFailedCount % 100 == 0)
+                    //        {
+                    //            Console.WriteLine("更新并发数失败个数：" + updateConcurrencyFailedCount);
+                    //        }
+                    //    }
+                    //    continue;
+                    //}
                     if (sqlHelper.Create(model))
                     {
                         successCount++;
