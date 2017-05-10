@@ -12,7 +12,7 @@ namespace LogForJAnalyse
             Console.WriteLine("请确保要解析的日志文件在当前目录下且包含.log.！");
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             var dirInfo = new DirectoryInfo(currentDir);
-            var logFiles = dirInfo.GetFiles("*.log.*");
+            var logFiles = dirInfo.GetFiles("*.log*");
             foreach (var logFile in logFiles)
             {
                 AnalysisLogFile(logFile.FullName);
