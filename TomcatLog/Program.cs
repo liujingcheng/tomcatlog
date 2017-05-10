@@ -60,11 +60,11 @@ namespace TomcatLog
             while (!sr.EndOfStream)
             {
                 string lineStr = sr.ReadLine();
+                line++;
                 if (string.IsNullOrWhiteSpace(lineStr))
                 {
                     continue;
                 }
-                line++;
                 try
                 {
                     var ip = lineStr.Substring(0, lineStr.IndexOf("- -")).Trim();
