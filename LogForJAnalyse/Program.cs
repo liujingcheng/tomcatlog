@@ -51,7 +51,7 @@ namespace LogForJAnalyse
             }
 
             var rFile = new FileStream(filePath, FileMode.Open);
-            var sr = new StreamReader(rFile, Encoding.GetEncoding("utf-8"));//读取中文简体编码GB2312
+            var sr = new StreamReader(rFile, Encoding.GetEncoding("gb2312"));//读取中文简体编码GB2312
 
             int line = 0;
             int logStartLine = 0;
