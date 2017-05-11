@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -150,6 +151,18 @@ namespace TomcatLog
             Console.WriteLine("更新并发数失败个数：" + updateConcurrencyFailedCount);
             Console.WriteLine("已存在个数：" + existCount);
             Console.WriteLine("文件解析完毕：" + filePath);
+        }
+
+        static void InitLog4Net()
+        {
+            //初始化系统日志
+            var path = AppDomain.CurrentDomain.SetupInformation.ApplicationBase +
+                       ConfigurationManager.AppSettings["log4net"];
+            var fi = new System.IO.FileInfo(path);
+            if (fi.Exists)
+            {
+                log4net.Config.XmlConfigurator.Configure(fi);
+            }
         }
     }
 }
