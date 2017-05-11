@@ -13,5 +13,6 @@ namespace LogForJAnalyse
         public string Message { get; set; }
         public string FileName { get; set; }
         public int Line { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Text;
 using Common;
@@ -9,7 +10,9 @@ namespace LogForJAnalyse
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("请确保要解析的日志文件在当前目录下且包含.log.！");
+            InitLog4Net();
+
+            Console.WriteLine("请确保要解析的日志文件在当前目录下且包含.log！");
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             var dirInfo = new DirectoryInfo(currentDir);
             var logFiles = dirInfo.GetFiles("*.log*");
@@ -37,11 +40,6 @@ namespace LogForJAnalyse
             }
 
             var fileName = fileInfo.Name;
-            //if (!fileName.Contains("alibaba.druid.filter.logging.Log4jFilter"))
-            //{
-            //    Console.WriteLine("该文件名因为没有包含alibaba.druid.filter.logging.Log4jFilter关键字可能无法解析，已被忽略：" + fileName);
-            //    return;
-            //}
 
             SqlHelper sqlHelper = new SqlHelper();
             if (sqlHelper.IsFileHasAnalysised(fileName))
@@ -62,13 +60,13 @@ namespace LogForJAnalyse
 
             while (!sr.EndOfStream)
             {
-                string lineStr = sr.ReadLine();
-                line++;
                 try
                 {
+                    string lineStr = sr.ReadLine();
+                    line++;
                     if (string.IsNullOrWhiteSpace(lineStr))
                     {
-                        if (message == null)
+                        if (message == null || logTime == DateTime.MinValue)
                         {
                             continue;
                         }
@@ -94,7 +92,10 @@ namespace LogForJAnalyse
                             failedCount++;
                             if (failedCount % 100 == 0)
                             {
-                                Console.WriteLine("解析失败个数：" + failedCount);
+                                var error = string.Format("记录保存失败!file={0},logStartLine={1},lineStr={2},logTime={3}", fileName,
+                                    logStartLine, lineStr, logTime);
+                                Console.WriteLine(error);
+                                LogHelper.WriteLog(error);
                             }
                         }
 
@@ -124,7 +125,10 @@ namespace LogForJAnalyse
                 catch (Exception ex)
                 {
                     failedCount++;
-                    Console.WriteLine(ex.Message);
+                    var error = string.Format("发生异常!file={0},logStartLine={1},lastLine={2},logTime={3},ex.Message={4}", fileName,
+                        logStartLine, line, logTime, ex.Message);
+                    Console.WriteLine(error);
+                    LogHelper.WriteLog(error, ex);
                 }
             }
             sr.Close();
@@ -132,6 +136,18 @@ namespace LogForJAnalyse
             Console.WriteLine("解析成功个数：" + successCount);
             Console.WriteLine("解析失败个数：" + failedCount);
             Console.WriteLine("文件解析完毕：" + filePath);
+        }
+
+        static void InitLog4Net()
+        {
+            //初始化系统日志
+            var path = AppDomain.CurrentDomain.SetupInformation.ApplicationBase +
+                       ConfigurationManager.AppSettings["log4net"];
+            var fi = new System.IO.FileInfo(path);
+            if (fi.Exists)
+            {
+                log4net.Config.XmlConfigurator.Configure(fi);
+            }
         }
     }
 }

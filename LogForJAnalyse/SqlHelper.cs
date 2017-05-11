@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common;
 using Dapper;
@@ -23,13 +24,14 @@ namespace LogForJAnalyse
         {
             bool result = false;
             string sql =
-                @"insert into LogForJ (LogTime,LogLevel,Message,FileName,Line) values(@LogTime,@LogLevel,@Message,@FileName,@Line)";
+                @"insert into LogForJ (LogTime,LogLevel,Message,FileName,Line,CreatedOn) values(@LogTime,@LogLevel,@Message,@FileName,@Line,@CreatedOn)";
             var paras = new DynamicParameters();
             paras.Add("LogTime", model.LogTime);
             paras.Add("LogLevel", model.LogLevel);
             paras.Add("Message", model.Message);
             paras.Add("FileName", model.FileName);
             paras.Add("Line", model.Line);
+            paras.Add("CreatedOn", DateTime.Now);
             using (var context = DataBaseConnection.GetSqlServerConnection())
             {
                 var affectrow = context.Execute(sql, paras);
