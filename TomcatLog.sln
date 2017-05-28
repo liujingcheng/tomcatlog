@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogForJAnalyse", "LogForJAn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{43339302-9DFA-4AB4-8935-FF5175320918}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveUtfBom", "RemoveUtfBom\RemoveUtfBom.csproj", "{1EC5AF89-F752-4D2E-87DA-ACBF90020BC2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{43339302-9DFA-4AB4-8935-FF5175320918}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43339302-9DFA-4AB4-8935-FF5175320918}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43339302-9DFA-4AB4-8935-FF5175320918}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EC5AF89-F752-4D2E-87DA-ACBF90020BC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EC5AF89-F752-4D2E-87DA-ACBF90020BC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EC5AF89-F752-4D2E-87DA-ACBF90020BC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EC5AF89-F752-4D2E-87DA-ACBF90020BC2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
