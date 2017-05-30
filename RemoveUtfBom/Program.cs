@@ -38,15 +38,13 @@ namespace RemoveUtfBom
                 AnalysisFiles(file.FullName, file.FullName.Replace(dirInfo.FullName, tempDirPath + "\\"));
             }
 
-            Console.WriteLine();
-            Console.WriteLine("所有文件分析完毕");
-            Console.ReadLine();
+            Console.WriteLine("所有源文件去BOM头完毕！");
         }
 
         static void AnalysisFiles(string sourceFileFullName, string destFileFullName)
         {
-            Console.WriteLine();
-            Console.WriteLine("开始分析文件：" + sourceFileFullName);
+            //Console.WriteLine();
+            //Console.WriteLine("开始分析文件：" + sourceFileFullName);
 
             FileInfo fileInfo = new FileInfo(sourceFileFullName);
 
@@ -85,7 +83,7 @@ namespace RemoveUtfBom
                 LogHelper.WriteLog(ex.Message, ex);
             }
 
-            Console.WriteLine("文件分析完毕：" + sourceFileFullName);
+            //Console.WriteLine("文件分析完毕：" + sourceFileFullName);
         }
 
         /// <summary>
