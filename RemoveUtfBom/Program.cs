@@ -107,12 +107,13 @@ namespace RemoveUtfBom
                     return;
                 }
 
-                byte[] farr = new byte[1024];
                 const int rbuffer = 1024;
-                //fs1.ReadByte(); //读取单个字节，返回-1表示读完
-                while (fs1.Read(farr, 0, rbuffer) != 0) //返回0表示读完
+                byte[] farr = new byte[rbuffer];
+                readedCount = fs1.Read(farr, 0, rbuffer);
+                while (readedCount != 0) //返回0表示读完
                 {
-                    fs2.Write(farr, 0, rbuffer);
+                    fs2.Write(farr, 0, readedCount);
+                    readedCount = fs1.Read(farr, 0, rbuffer);
                 }
 
                 fs1.Close();
