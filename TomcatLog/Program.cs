@@ -39,7 +39,7 @@ namespace TomcatLog
             }
 
             var fileName = fileInfo.Name;
-            if (!fileName.Contains("_access_log_"))
+            if (!fileName.Contains("access_log"))
             {
                 Console.WriteLine("该文件名因为没有包含_access_log_关键字可能无法解析，已被忽略：" + fileName);
                 return;
