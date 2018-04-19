@@ -33,11 +33,11 @@ namespace RemoveUtfBom
                 Directory.CreateDirectory(tempDirPath);
             }
 
+            Console.WriteLine("开始分析源文件是否有BOM头...");
             foreach (var file in files)
             {
                 AnalysisFiles(file.FullName, file.FullName.Replace(dirInfo.FullName, tempDirPath + "\\"));
             }
-
             Console.WriteLine("所有源文件去BOM头完毕！");
         }
 
