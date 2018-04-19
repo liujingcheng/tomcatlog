@@ -13,7 +13,7 @@ namespace TomcatLog
         {
             Console.WriteLine("请确保要解析的tomcat日志文件在当前目录下且是以txt为后缀名！");
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-            var dirInfo=new DirectoryInfo(currentDir);
+            var dirInfo = new DirectoryInfo(currentDir);
             var logFiles = dirInfo.GetFiles("*.txt");
             foreach (var logFile in logFiles)
             {
@@ -84,11 +84,14 @@ namespace TomcatLog
                     var lastStrs = lastStr.Split(new char[] { ' ' });
                     var status = lastStrs[0].Trim();
                     var sizeStr = lastStrs[1].Trim();
-                    var durationStr = lastStrs[2].Trim();
-
                     var date = Convert.ToDateTime(dateStr);
                     var size = Convert.ToInt64(sizeStr);
-                    var duration = Convert.ToDouble(durationStr);
+                    double duration = 0;
+                    if (lastStrs.Length > 2)
+                    {
+                        var durationStr = lastStrs[2].Trim();
+                        Convert.ToDouble(durationStr);
+                    }
 
                     var model = new TomcatAccessModel()
                     {
