@@ -2,7 +2,7 @@
 using System.Data.Common;
 using System.Data.SqlClient;
 
-namespace TomcatLog
+namespace Common
 {
     /// <summary>
     /// 从配置文件中读取连接字符串 Add By Chen Yafei 2016-5-04

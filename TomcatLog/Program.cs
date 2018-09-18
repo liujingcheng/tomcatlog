@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace TomcatLog
         {
             Console.WriteLine("请确保要解析的tomcat日志文件在当前目录下且是以txt为后缀名！");
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-            var dirInfo=new DirectoryInfo(currentDir);
+            var dirInfo = new DirectoryInfo(currentDir);
             var logFiles = dirInfo.GetFiles("*.txt");
             foreach (var logFile in logFiles)
             {
@@ -38,7 +39,7 @@ namespace TomcatLog
             }
 
             var fileName = fileInfo.Name;
-            if (!fileName.Contains("_access_log_"))
+            if (!fileName.Contains("access_log"))
             {
                 Console.WriteLine("该文件名因为没有包含_access_log_关键字可能无法解析，已被忽略：" + fileName);
                 return;
@@ -60,11 +61,11 @@ namespace TomcatLog
             while (!sr.EndOfStream)
             {
                 string lineStr = sr.ReadLine();
+                line++;
                 if (string.IsNullOrWhiteSpace(lineStr))
                 {
                     continue;
                 }
-                line++;
                 try
                 {
                     var ip = lineStr.Substring(0, lineStr.IndexOf("- -")).Trim();
@@ -83,18 +84,21 @@ namespace TomcatLog
                     var lastStrs = lastStr.Split(new char[] { ' ' });
                     var status = lastStrs[0].Trim();
                     var sizeStr = lastStrs[1].Trim();
-                    var durationStr = lastStrs[2].Trim();
-
                     var date = Convert.ToDateTime(dateStr);
                     var size = Convert.ToInt64(sizeStr);
-                    var duration = Convert.ToDouble(durationStr);
+                    double duration = 0;
+                    if (lastStrs.Length > 2)
+                    {
+                        var durationStr = lastStrs[2].Trim();
+                        Convert.ToDouble(durationStr);
+                    }
 
                     var model = new TomcatAccessModel()
                     {
                         TomcatAccessId = Guid.NewGuid().ToString().Replace("-", ""),
                         Ip = ip,
                         RequestTime = date,
-                        Concurrency = 1,
+                        //Concurrency = 1,
                         RequestUrl = url,
                         ResponseStatus = status,
                         ResponseDataSize = size,
@@ -102,23 +106,23 @@ namespace TomcatLog
                         FileName = fileName,
                         Line = line
                     };
-                    if (sqlHelper.IsConcurrentSameRecord(model))
-                    {
-                        updateConcurrencyCount++;
-                        if (updateConcurrencyCount % 100 == 0)
-                        {
-                            Console.WriteLine("更新并发数个数：" + updateConcurrencyCount);
-                        }
-                        if (!sqlHelper.UpdateConcurrentModel(model))
-                        {
-                            updateConcurrencyFailedCount++;
-                            if (updateConcurrencyFailedCount % 100 == 0)
-                            {
-                                Console.WriteLine("更新并发数失败个数：" + updateConcurrencyFailedCount);
-                            }
-                        }
-                        continue;
-                    }
+                    //if (sqlHelper.IsConcurrentSameRecord(model))
+                    //{
+                    //    updateConcurrencyCount++;
+                    //    if (updateConcurrencyCount % 100 == 0)
+                    //    {
+                    //        Console.WriteLine("更新并发数个数：" + updateConcurrencyCount);
+                    //    }
+                    //    if (!sqlHelper.UpdateConcurrentModel(model))
+                    //    {
+                    //        updateConcurrencyFailedCount++;
+                    //        if (updateConcurrencyFailedCount % 100 == 0)
+                    //        {
+                    //            Console.WriteLine("更新并发数失败个数：" + updateConcurrencyFailedCount);
+                    //        }
+                    //    }
+                    //    continue;
+                    //}
                     if (sqlHelper.Create(model))
                     {
                         successCount++;
@@ -150,6 +154,18 @@ namespace TomcatLog
             Console.WriteLine("更新并发数失败个数：" + updateConcurrencyFailedCount);
             Console.WriteLine("已存在个数：" + existCount);
             Console.WriteLine("文件解析完毕：" + filePath);
+        }
+
+        static void InitLog4Net()
+        {
+            //初始化系统日志
+            var path = AppDomain.CurrentDomain.SetupInformation.ApplicationBase +
+                       ConfigurationManager.AppSettings["log4net"];
+            var fi = new System.IO.FileInfo(path);
+            if (fi.Exists)
+            {
+                log4net.Config.XmlConfigurator.Configure(fi);
+            }
         }
     }
 }
